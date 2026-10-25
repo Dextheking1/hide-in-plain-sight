@@ -6,6 +6,8 @@ Type a secret word. A Pollinations model draws an ordinary picture that hides it
 
 **Live app:** https://dextheking1.github.io/hide-in-plain-sight/
 
+![The example picture in the app. It hides the word HELLO: house, elephant, lion, lamp, owl.](docs/screenshot.jpg)
+
 Built for Pollinations quest [#18367](https://github.com/pollinations/pollinations/issues/18367), after the post [How does Fable 5.1 hide messages in images?](https://www.lesswrong.com/posts/WHEQps5PK8LrrcTAb/how-does-fable-5-1-hide-messages-in-images)
 
 ## How it works
