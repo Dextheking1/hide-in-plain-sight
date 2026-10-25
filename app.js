@@ -32,6 +32,14 @@
     if (extra) { $('keyResult').textContent = extra; }
   }
 
+  function syncDemoMode() {
+    var demo = $('demoMode').checked;
+    var select = $('modelSelect');
+    select.disabled = demo;
+    select.setAttribute('aria-disabled', demo ? 'true' : 'false');
+    $('modelField').classList.toggle('is-disabled', demo);
+  }
+
   function saveKeys() {
     var k = $('apiKeyInput').value.trim();
     var a = $('appKeyInput').value.trim();
@@ -392,6 +400,8 @@
     if (savedApp) $('appKeyInput').value = savedApp;
     handleOAuthCallback();
     refreshKeyState();
+    syncDemoMode();
+    $('demoMode').addEventListener('change', syncDemoMode);
     $('saveKeyBtn').addEventListener('click', saveKeys);
     $('wipeKeyBtn').addEventListener('click', wipeKeys);
     $('connectBtn').addEventListener('click', startConnect);
