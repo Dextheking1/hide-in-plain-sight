@@ -28,10 +28,15 @@ h1 { font-family: Georgia, "Times New Roman", serif; font-size: 1.65rem; margin:
 .tag { margin: 0; color: var(--muted); font-style: italic; }
 .keystate { font-size: 0.9rem; color: var(--muted); border: 1px solid var(--line); padding: 0.3rem 0.7rem; border-radius: 999px; background: var(--card); }
 .keystate.on { color: var(--good); border-color: var(--good); }
-main { max-width: 880px; margin: 0 auto; padding: 1.2rem 1rem 2rem; }
+main { max-width: 1080px; margin: 0 auto; padding: 1.2rem 1rem 2rem; }
 .hero { font-size: 1.06rem; }
 .fineprint { color: var(--muted); font-size: 0.94rem; }
 .cite { font-style: italic; }
+.fineprint a.cite {
+  color: var(--accent-dark); font-weight: 700; text-decoration: underline;
+  text-decoration-thickness: 1.5px; text-underline-offset: 0.16em;
+}
+.fineprint a.cite:hover { color: var(--accent); }
 .card {
   background: var(--card); border: 1px solid var(--line); border-radius: 12px;
   padding: 1.1rem 1.2rem 1.25rem; margin: 1.1rem 0;
@@ -65,8 +70,19 @@ button:disabled { opacity: 0.55; cursor: wait; }
 .result.good { color: var(--good); }
 .result.bad { color: var(--bad); }
 .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
-.grid3 { display: grid; grid-template-columns: 2fr 1fr 1.4fr; gap: 0.8rem; }
-@media (max-width: 700px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+.grid3 { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0.8rem; }
+.grid3 > label { min-width: 0; }
+.grid3 .model-field { grid-column: 1 / -1; }
+.grid3 select { min-width: 0; }
+.model-field.is-disabled { color: var(--muted); }
+select:disabled {
+  background: #eee7d7; border-color: var(--line); color: var(--muted);
+  cursor: not-allowed; opacity: 0.62;
+}
+@media (max-width: 700px) {
+  .grid2, .grid3 { grid-template-columns: 1fr; }
+  .grid3 .model-field { grid-column: auto; }
+}
 label { display: block; font-size: 0.92rem; font-weight: 600; }
 label.block { margin-top: 0.4rem; }
 input[type="text"], input[type="password"], select, textarea {
