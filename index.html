@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hide in Plain Sight - secrets drawn in the open</title>
+<meta name="description" content="Type a secret word. A Pollinations model draws an ordinary picture that hides it. Send the picture to anyone; only a fresh model call, or a sharp eye, can read it back.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 48 48" aria-hidden="true"><rect x="3" y="8" width="42" height="32" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="17" cy="19" r="3.4" fill="currentColor"/><path d="M6 36 L19 24 L28 32 L34 27 L42 34" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg>
+    <div>
+      <h1>Hide in Plain Sight</h1>
+      <p class="tag">Secrets, drawn in the open.</p>
+    </div>
+  </div>
+  <p class="keystate" id="keyState">No key connected</p>
+</header>
+
+<main>
+  <section class="hero">
+    <p>Type a secret word. A Pollinations model draws you an ordinary picture, a house, an elephant, a row of quiet things, and hides the word inside it: the objects, read in order, start with its letters. Send the picture anywhere. To read it back, hand the picture code to a fresh model that has never seen your word and ask what is hidden.</p>
+    <p class="fineprint">Inspired by the post <span class="cite">How does Fable 5.1 hide messages in images?</span> The hiding here is an acrostic, simple and checkable: the app itself verifies that the drawn objects really spell your word.</p>
+  </section>
+
+  <section class="card" id="exampleCard">
+    <div class="cardhead">
+      <h2>The five second example</h2>
+      <span class="pill">No key, no Pollen</span>
+    </div>
+    <div class="stage" id="exampleStage"></div>
+    <p class="hint">This picture hides a word. Find the row of things, read their names in order, take the first letters.</p>
+    <div class="row">
+      <button type="button" id="exampleRevealBtn" class="primary">Reveal the hidden word</button>
+      <span class="result" id="exampleResult" aria-live="polite"></span>
+    </div>
+  </section>
+
+  <section class="card" id="keyCard">
+    <div class="cardhead">
+      <h2>Your Pollen pays, not ours</h2>
+      <span class="pill">Bring your own Pollen</span>
+    </div>
+    <p>Every model call runs on your own Pollinations account. Two ways to connect:</p>
+    <ol class="steps">
+      <li><strong>Paste your key.</strong> Get one at <a href="https://enter.pollinations.ai/keys" target="_blank" rel="noopener">enter.pollinations.ai/keys</a> and paste it below. It is stored only in this browser (localStorage), sent only to gen.pollinations.ai, and you can wipe it any time.</li>
+      <li><strong>One click connect.</strong> If you have an app key (<code>pk_...</code>, created under Apps on the same page), paste it too and use the connect button. Pollinations then issues a scoped key for this app, with a budget and an expiry you approve. That key stays in session storage only.</li>
+    </ol>
+    <div class="grid2">
+      <label>Your API key (<code>sk_...</code>)
+        <input type="password" id="apiKeyInput" autocomplete="off" placeholder="sk_...">
+      </label>
+      <label>App key (optional, <code>pk_...</code>)
+        <input type="text" id="appKeyInput" autocomplete="off" placeholder="pk_...">
+      </label>
+    </div>
+    <div class="row">
+      <button type="button" id="saveKeyBtn" class="primary">Save key in this browser</button>
+      <button type="button" id="connectBtn">Connect with Pollinations</button>
+      <button type="button" id="wipeKeyBtn" class="ghost">Wipe keys</button>
+      <span class="result" id="keyResult" aria-live="polite"></span>
+    </div>
+    <label class="check"><input type="checkbox" id="demoMode"> Demo mode: draw with the tiny built-in illustrator instead of a model. Free, instant, and the pictures are simpler.</label>
+  </section>
+
+  <section class="card" id="hideCard">
+    <div class="cardhead">
+      <h2>1. Hide a word in a picture</h2>
+    </div>
+    <div class="grid3">
+      <label>Secret word (letters only, up to 16)
+        <input type="text" id="secretInput" maxlength="24" placeholder="HELLO" autocomplete="off">
+      </label>
+      <label>Scene
+        <select id="themeSelect">
+          <option value="meadow">meadow</option>
+          <option value="coast">coast</option>
+          <option value="sunset">sunset</option>
+          <option value="night">night</option>
+        </select>
+      </label>
+      <label>Model
+        <select id="modelSelect">
+          <option value="anthropic/claude-fable-5.1">Claude Fable 5.1 (from the post)</option>
+          <option value="anthropic/claude-sonnet-5.5">Claude Sonnet 5.5</option>
+          <option value="google/gemini-4-argon">Gemini 4 Argon</option>
+          <option value="openai/gpt-5.4-nano">GPT-5.4 Nano (cheapest)</option>
+        </select>
+      </label>
+    </div>
+    <div class="row">
+      <button type="button" id="hideBtn" class="primary big">Draw my secret picture</button>
+      <span class="result" id="hideStatus" aria-live="polite"></span>
+    </div>
+    <div class="stage empty" id="stage"><p class="stagehint">Your picture appears here.</p></div>
+    <div id="pictureMeta" class="meta" hidden>
+      <p class="objline">The row, left to right: <span id="objectChips"></span></p>
+      <p class="objline" id="acrosticLine"></p>
+      <div class="row">
+        <button type="button" id="downloadBtn">Download SVG</button>
+        <button type="button" id="copyBtn">Copy SVG code</button>
+        <button type="button" id="saveBtn">Save to my pictures</button>
+        <button type="button" id="sendToRevealBtn">Send to Reveal</button>
+      </div>
+    </div>
+    <div id="savedWrap" hidden>
+      <h3>My saved pictures</h3>
+      <div class="saved" id="savedList"></div>
+    </div>
+  </section>
+
+  <section class="card" id="revealCard">
+    <div class="cardhead">
+      <h2>2. Reveal what a picture hides</h2>
+    </div>
+    <p>Paste the SVG code of a picture below. A fresh model call gets only the code, never the original word, and reports what it finds. Demo mode reads the object names locally instead.</p>
+    <label class="block">SVG code
+      <textarea id="revealInput" rows="7" spellcheck="false" placeholder="<svg ...>...</svg>"></textarea>
+    </label>
+    <div class="row">
+      <button type="button" id="revealBtn" class="primary big">Ask a fresh model to find it</button>
+      <button type="button" id="revealDemoBtn">Read it locally (demo)</button>
+      <span class="result" id="revealStatus" aria-live="polite"></span>
+    </div>
+    <div class="verdict" id="revealResult" hidden></div>
+  </section>
+
+  <section class="card slim">
+    <h2>How the trick works</h2>
+    <p>The model picks one ordinary object per letter of your word: <em>house, elephant, lion, lamp, owl</em> for HELLO. It draws them in a row inside an otherwise normal scene. Nothing in the picture is a letter, so it survives a casual look, a screenshot, a repost. The reader, human or model, has to notice the row and read the initials. The app checks the spelling itself before it shows you the picture, and asks the model to redraw when the row spells the wrong word.</p>
+    <p>Honest limits: this is a toy lock, not encryption. Anyone who suspects a hidden word and reads the initials gets it. Use it for games, gifts, puzzles and quiet jokes, not for anything that must stay secret.</p>
+  </section>
+</main>
+
+<footer>
+  <a href="https://pollinations.ai/?ref=badge"><img src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg" alt="Made with pollinations.ai" height="28"></a>
+  <p>Built on <a href="https://gen.pollinations.ai">gen.pollinations.ai</a>. Keys stay in your browser. Pictures are drawn by Pollinations models with your own Pollen. Source: <a href="https://github.com/Dextheking1/hide-in-plain-sight">github.com/Dextheking1/hide-in-plain-sight</a></p>
+</footer>
+
+<script src="logic.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
